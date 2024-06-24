@@ -2,7 +2,6 @@ from collections.abc import Callable, Iterable
 from typing import TypeVar
 import data
 import random
-import time
 
 BATCH_SIZE = 4
 POINTER = 0
@@ -24,7 +23,7 @@ class DistributeMetrics:
 
 
 def is_user_available(user: data.User):
-    return random.random() < 0.5
+    return True
 
 
 def can_assign(user: data.User, assigned_map: dict[int, int]):
@@ -77,18 +76,25 @@ def distribute(
     return lead_user_map, assigned_map, left_over_lead
 
 
-def batch_data(lead: list[data.LeadUser], size: int):
-    return random.choices(lead, k=size)
-
-
-if __name__ == "__main__":
-    batch = batch_data(data.lead_list, BATCH_SIZE)
-    start = time.time()
-    lead_user_map, assigned_map, left_over_lead = distribute(
-        batch, data.user_list, data.get_currently_assigned_count(data.user_list)
-    )
-    print(
-        f"Lead user map: {lead_user_map}\nLeft over lead: {left_over_lead}\nAssigned map: {assigned_map}"
-    )
-    end = time.time()
-    print(f"Time taken: {end - start}")
+def distribute_rec(
+    lead_batch: list[data.LeadUser],
+    users: list[data.User],
+    assigned_map: dict[int, int],
+    user_lead_map: dict[int, int] = {},
+) -> tuple[dict[int, int], dict[int, int], list[data.LeadUser]]:
+    if len(lead_batch) == 0:
+        return user_lead_map, assigned_map, []
+    if len(users) == 0:
+        print("No more users left")
+        return user_lead_map, assigned_map, lead_batch
+    first_lead = lead_batch[0]
+    first_user = users[0]
+    if can_assign(first_user, assigned_map):
+        user_lead_map[first_user["id"]] = first_lead["id"]
+        assigned_map[first_user["id"]] += 1
+        lead_batch.pop(0)
+        distribute_rec(lead_batch, users, assigned_map, user_lead_map)
+    else:
+        users.pop(0)
+        distribute_rec(lead_batch, users, assigned_map, user_lead_map)
+    return user_lead_map, assigned_map, lead_batch

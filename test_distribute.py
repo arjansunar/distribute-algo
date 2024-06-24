@@ -1,6 +1,5 @@
 import data
 import distribute
-import rich
 
 
 def generate_users(size: int) -> list[data.User]:
@@ -32,15 +31,26 @@ def generate_leads(size: int) -> list[data.LeadUser]:
     return leads
 
 
+SIZE = 100
+
+
 def test_should_distribute():
-    users = generate_users(10)
-    leads = generate_leads(5)
+    users = generate_users(SIZE)
+    leads = generate_leads(SIZE)
     assigned_map = {user["id"]: 0 for user in users}
     user_lead_map, res_assigned_map, left_over_lead = distribute.distribute(
         leads, users, assigned_map
     )
-    rich.print(
-        f" INPUT: \n {users=} {leads=} \n\n OUTPUT: \n {user_lead_map=} {res_assigned_map=}"
+    assert user_lead_map == {i: i for i in range(SIZE)}
+    assert len(left_over_lead) == 0
+
+
+def test_should_distribute_rec():
+    users = generate_users(SIZE)
+    leads = generate_leads(SIZE)
+    assigned_map = {user["id"]: 0 for user in users}
+    user_lead_map, res_assigned_map, left_over_lead = distribute.distribute_rec(
+        leads, users, assigned_map
     )
-    assert user_lead_map == {0: 0, 1: 1, 2: 2, 3: 3, 4: 4}
+    assert user_lead_map == {i: i for i in range(SIZE)}
     assert len(left_over_lead) == 0
