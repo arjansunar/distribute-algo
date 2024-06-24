@@ -66,6 +66,15 @@ def distribute(
     users: list[data.User],
     assigned_map: dict[int, int],
 ) -> tuple[dict[int, int], dict[int, int], list[data.LeadUser]]:
+    """
+    ### Before distribute is called
+    - available `users` must be filtered out and sorted in ascending order but starting
+      from the `pointer`
+
+    The responsibility of managing pointers and the users accordingly will be out of scope
+    for this function.
+    It will just store the last assigned user by updating the POINTER
+    """
     metrics = DistributeMetrics()
     lead_user_map: dict[int, int] = {}
     left_over_lead: list[data.LeadUser] = []
