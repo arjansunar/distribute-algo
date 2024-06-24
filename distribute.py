@@ -52,6 +52,15 @@ def pick_til_defined(
     return None
 
 
+def sort_with_pointer(
+    users: list[data.LeadUser], pointer: int
+) -> list[data.LeadUser]: ...
+
+
+def get_available_users(users: list[data.User]):
+    return filter(is_user_available, users)
+
+
 def distribute(
     lead_batch: list[data.LeadUser],
     users: list[data.User],
@@ -63,7 +72,7 @@ def distribute(
     for lead in lead_batch:
         potential_user = pick_til_defined(
             users,
-            lambda user: is_user_available(user) and can_assign(user, assigned_map),
+            lambda user: can_assign(user, assigned_map),
         )
         if potential_user is None:
             print("Cannot assign to users...")
@@ -73,6 +82,7 @@ def distribute(
         lead_user_map[user["id"]] = lead["id"]
         assigned_map[user["id"]] += 1
         metrics.pointer = index
+    # INFO: Store the last assigned users
     return lead_user_map, assigned_map, left_over_lead
 
 
